@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>MetaLens — Photo Metadata Analyzer</title>
+  <meta
+    name="description"
+    content="Analyze photo EXIF, GPS, camera, device and capture metadata locally in your browser."
+  />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js"
+    defer
+  ></script>
+
+  <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+
+  <!-- BACKGROUND FX -->
+  <div class="noise"></div>
+  <div class="aurora aurora-one"></div>
+  <div class="aurora aurora-two"></div>
+  <div class="grid-bg"></div>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a href="#" class="brand">
+      <span class="brand-orb">
+        <span></span>
+      </span>
+
+      <span>
+        <strong>Meta</strong><em>Lens</em>
+      </span>
+    </a>
+
+    <div class="nav-center">
+      <span class="status-dot"></span>
+      100% LOCAL ANALYSIS
+    </div>
+
+    <div class="nav-right">
+      <button class="nav-pill" id="themeGlow">
+        <span>✦</span> LIVE ENGINE
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <main>
+
+    <section class="hero">
+
+      <div class="hero-copy">
+
+        <div class="eyebrow">
+          <span class="pulse"></span>
+          NEXT-GEN PHOTO FORENSICS
+        </div>
+
+        <h1>
+          See what your
+          <span class="gradient-text">photo remembers.</span>
+        </h1>
+
+        <p>
+          Extract hidden EXIF, GPS, camera, device, capture time,
+          lens and technical metadata from your image.
+          Everything happens locally in your browser.
+        </p>
+
+        <div class="hero-stats">
+          <div>
+            <strong>100%</strong>
+            <span>PRIVATE</span>
+          </div>
+
+          <div>
+            <strong>30+</strong>
+            <span>DATA FIELDS</span>
+          </div>
+
+          <div>
+            <strong>0</strong>
+            <span>UPLOADS</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 3D UPLOAD CARD -->
+      <section class="upload-stage">
+
+        <div class="orbit orbit-1"></div>
+        <div class="orbit orbit-2"></div>
+        <div class="orbit orbit-3"></div>
+
+        <div class="upload-card" id="dropZone">
+
+          <div class="card-shine"></div>
+
+          <div class="scanner-ring">
+            <div class="scanner-core">
+              <span class="scan-icon">⌁</span>
+            </div>
+          </div>
+
+          <div class="upload-content">
+
+            <span class="mini-label">METADATA SCANNER</span>
+
+            <h2>
+              Drop your image
+              <br />
+              into the scanner
+            </h2>
+
+            <p>
+              JPG · JPEG · PNG · WEBP · HEIC
+            </p>
+
+            <label class="upload-btn">
+              <input
+                type="file"
+                id="fileInput"
+                accept="image/*"
+                hidden
+              />
+
+              <span>Choose Image</span>
+              <b>→</b>
+            </label>
+
+            <div class="privacy">
+              <span>◉</span>
+              Image never leaves this device
+            </div>
+
+          </div>
+
+          <div class="scan-line"></div>
+
+        </div>
+
+      </section>
+
+    </section>
+
+
+    <!-- DASHBOARD -->
+    <section class="dashboard hidden" id="dashboard">
+
+      <!-- TOP RESULT -->
+      <div class="result-header">
+
+        <div class="result-title">
+          <span class="live-indicator"></span>
+
+          <div>
+            <span class="section-kicker">ANALYSIS COMPLETE</span>
+            <h2 id="fileName">Photo Analysis</h2>
+          </div>
+        </div>
+
+        <div class="result-actions">
+          <button class="action-btn" id="copyBtn">
+            ⧉ Copy JSON
+          </button>
+
+          <button class="action-btn primary" id="downloadBtn">
+            ↓ Export
+          </button>
+
+          <button class="action-btn danger" id="newBtn">
+            × New
+          </button>
+        </div>
+
+      </div>
+
+
+      <!-- IMAGE + QUICK INFO -->
+      <div class="top-grid">
+
+        <div class="preview-panel glass-panel">
+
+          <div class="panel-top">
+            <span>IMAGE PREVIEW</span>
+            <span id="imageType">IMAGE</span>
+          </div>
+
+          <div class="image-wrap">
+
+            <img id="previewImage" alt="Uploaded image preview" />
+
+            <div class="image-overlay">
+              <span class="corner tl"></span>
+              <span class="corner tr"></span>
+              <span class="corner bl"></span>
+              <span class="corner br"></span>
+
+              <div class="target-label">
+                <span></span>
+                METADATA TARGET
+              </div>
+            </div>
+
+          </div>
+
+          <div class="image-footer">
+
+            <div>
+              <span>DIMENSIONS</span>
+              <strong id="dimensions">—</strong>
+            </div>
+
+            <div>
+              <span>FILE SIZE</span>
+              <strong id="fileSize">—</strong>
+            </div>
+
+            <div>
+              <span>FORMAT</span>
+              <strong id="format">—</strong>
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- 3D META CORE -->
+        <div class="meta-core-panel glass-panel">
+
+          <div class="panel-top">
+            <span>METADATA CORE</span>
+            <span class="green">ONLINE</span>
+          </div>
+
+          <div class="core-scene">
+
+            <div class="core-ring ring-a"></div>
+            <div class="core-ring ring-b"></div>
+            <div class="core-ring ring-c"></div>
+
+            <div class="core-sphere">
+              <div class="sphere-inner">
+                <span>EXIF</span>
+              </div>
+            </div>
+
+            <div class="data-node node-one">
+              <b id="fieldCount">0</b>
+              <span>FIELDS</span>
+            </div>
+
+            <div class="data-node node-two">
+              <b id="gpsStatus">—</b>
+              <span>GPS</span>
+            </div>
+
+            <div class="data-node node-three">
+              <b id="deviceStatus">—</b>
+              <span>DEVICE</span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- INFORMATION CARDS -->
+      <div class="info-grid">
+
+        <!-- DEVICE -->
+        <article class="info-card device-card">
+
+          <div class="card-header">
+            <div class="icon-box">▣</div>
+
+            <div>
+              <span>DEVICE</span>
+              <h3>Camera Identity</h3>
+            </div>
+          </div>
+
+          <div class="big-value" id="deviceName">
+            Not available
+          </div>
+
+          <div class="sub-data">
+
+            <div>
+              <span>MAKE</span>
+              <strong id="make">—</strong>
+            </div>
+
+            <div>
+              <span>MODEL</span>
+              <strong id="model">—</strong>
+            </div>
+
+            <div>
+              <span>LENS</span>
+              <strong id="lens">—</strong>
+            </div>
+
+            <div>
+              <span>SERIAL</span>
+              <strong id="serial">—</strong>
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <!-- DATE -->
+        <article class="info-card date-card">
+
+          <div class="card-header">
+            <div class="icon-box">◷</div>
+
+            <div>
+              <span>CAPTURE TIME</span>
+              <h3>When it happened</h3>
+            </div>
+          </div>
+
+          <div class="big-value" id="captureDate">
+            Not available
+          </div>
+
+          <div class="sub-data">
+
+            <div>
+              <span>ORIGINAL</span>
+              <strong id="originalDate">—</strong>
+            </div>
+
+            <div>
+              <span>DIGITIZED</span>
+              <strong id="digitizedDate">—</strong>
+            </div>
+
+            <div>
+              <span>TIMEZONE</span>
+              <strong id="timezone">—</strong>
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <!-- GPS -->
+        <article class="info-card gps-card">
+
+          <div class="card-header">
+            <div class="icon-box">⌖</div>
+
+            <div>
+              <span>LOCATION</span>
+              <h3>GPS Coordinates</h3>
+            </div>
+          </div>
+
+          <div class="coordinates" id="coordinates">
+            No GPS data
+          </div>
+
+          <div class="map-placeholder">
+
+            <div class="map-grid"></div>
+
+            <div class="map-pin" id="mapPin">
+              <span></span>
+            </div>
+
+            <div class="map-cross cross-one"></div>
+            <div class="map-cross cross-two"></div>
+
+          </div>
+
+          <div class="gps-footer">
+
+            <span id="altitude">Altitude: —</span>
+
+            <a
+              href="#"
+              target="_blank"
+              rel="noopener"
+              id="mapLink"
+              class="map-link"
+            >
+              Open Map ↗
+            </a>
+
+          </div>
+
+        </article>
+
+
+        <!-- CAMERA -->
+        <article class="info-card camera-card">
+
+          <div class="card-header">
+            <div class="icon-box">◉</div>
+
+            <div>
+              <span>CAMERA</span>
+              <h3>Capture Settings</h3>
+            </div>
+          </div>
+
+          <div class="camera-grid">
+
+            <div class="metric">
+              <span>ISO</span>
+              <strong id="iso">—</strong>
+            </div>
+
+            <div class="metric">
+              <span>SHUTTER</span>
+              <strong id="shutter">—</strong>
+            </div>
+
+            <div class="metric">
+              <span>APERTURE</span>
+              <strong id="aperture">—</strong>
+            </div>
+
+            <div class="metric">
+              <span>FOCAL</span>
+              <strong id="focal">—</strong>
+            </div>
+
+            <div class="metric">
+              <span>FLASH</span>
+              <strong id="flash">—</strong>
+            </div>
+
+            <div class="metric">
+              <span>WHITE BAL.</span>
+              <strong id="whiteBalance">—</strong>
+            </div>
+
+          </div>
+
+        </article>
+
+      </div>
+
+
+      <!-- TIMELINE -->
+      <section class="timeline-panel glass-panel">
+
+        <div class="panel-top">
+          <span>CAPTURE TIMELINE</span>
+          <span>CHRONOLOGY</span>
+        </div>
+
+        <div class="timeline">
+
+          <div class="timeline-line"></div>
+
+          <div class="timeline-event">
+
+            <div class="timeline-dot"></div>
+
+            <div>
+              <span>CAPTURED</span>
+              <strong id="timelineCapture">—</strong>
+            </div>
+
+          </div>
+
+          <div class="timeline-event">
+
+            <div class="timeline-dot"></div>
+
+            <div>
+              <span>DIGITIZED</span>
+              <strong id="timelineDigitized">—</strong>
+            </div>
+
+          </div>
+
+          <div class="timeline-event">
+
+            <div class="timeline-dot"></div>
+
+            <div>
+              <span>MODIFIED</span>
+              <strong id="timelineModified">—</strong>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- TECHNICAL DATA -->
+      <section class="technical-grid">
+
+        <div class="technical-card glass-panel">
+
+          <div class="panel-top">
+            <span>ORIGIN & SOFTWARE</span>
+            <span>TECHNICAL</span>
+          </div>
+
+          <div class="technical-list">
+
+            <div>
+              <span>SOFTWARE</span>
+              <strong id="software">—</strong>
+            </div>
+
+            <div>
+              <span>AUTHOR</span>
+              <strong id="author">—</strong>
+            </div>
+
+            <div>
+              <span>COPYRIGHT</span>
+              <strong id="copyright">—</strong>
+            </div>
+
+            <div>
+              <span>DESCRIPTION</span>
+              <strong id="description">—</strong>
+            </div>
+
+            <div>
+              <span>TITLE</span>
+              <strong id="title">—</strong>
+            </div>
+
+            <div>
+              <span>COLOR SPACE</span>
+              <strong id="colorSpace">—</strong>
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="raw-card glass-panel">
+
+          <div class="panel-top">
+            <span>RAW METADATA</span>
+
+            <button id="toggleRaw">
+              EXPAND ↗
+            </button>
+          </div>
+
+          <pre id="rawMetadata">{}</pre>
+
+        </div>
+
+      </section>
+
+    </section>
+
+  </main>
+
+
+  <!-- FOOTER -->
+  <footer>
+
+    <div class="footer-brand">
+      <span class="footer-orb"></span>
+      MetaLens
+    </div>
+
+    <p>
+      Metadata analysis happens locally.
+      Your original image is never uploaded to our server.
+    </p>
+
+    <span>
+      © 2026 MetaLens
+    </span>
+
+  </footer>
+
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <span>✓</span>
+    <p id="toastText">Done</p>
+  </div>
+
+</body>
+  </html>
